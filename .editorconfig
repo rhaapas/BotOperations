@@ -1,0 +1,17 @@
+# EditorConfig: https://EditorConfig.org
+
+# top-most EditorConfig file
+#root = true
+
+# tabs or else
+[*.cs]
+end_of_line = crlf
+insert_final_newline = true
+indent_style = tab
+charset = utf-16
+
+[Assets/_scripts/**.cs]
+end_of_line = crlf
+insert_final_newline = true
+indent_style = tab
+charset = utf-16
