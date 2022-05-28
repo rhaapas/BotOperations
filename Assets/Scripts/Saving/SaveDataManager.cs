@@ -42,14 +42,14 @@ public class SaveDataManager : MonoBehaviour
 		Debug.LogError($"Data not found by name {name}");
 		return null;
 	}
-	public void AddSaveData(BotOld bot)
-	{
-		BotData botData = new BotData();
-		botData.BotName = bot.BotName;
-		botData.BotPosition = bot.gameObject.transform.position;
-		botData.message = bot.Message;
-		AddBotData(botData);
-	}
+	//public void AddSaveData(BotOld bot)
+	//{
+	//	BotData botData = new BotData();
+	//	botData.BotName = bot.BotName;
+	//	botData.BotPosition = bot.gameObject.transform.position;
+	//	botData.message = bot.Message;
+	//	AddBotData(botData);
+	//}
 
     
 
