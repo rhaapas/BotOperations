@@ -17,7 +17,7 @@ public class Player : NetworkBehaviour
 	[SerializeField] private ulong playerId;
 	[SerializeField] private Bot currentlyUsingBot = null;
 	[SerializeField] private Bot selectedBot;
-	[Space]
+	[Header("Events")]
 	public SelectedBotChangedEvent selectedBotChanged;
 
 	private NetworkObject playerObject;
