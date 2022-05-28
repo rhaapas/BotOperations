@@ -7,7 +7,7 @@
 3. Build project from File -> Build Settings -> Build
 
 #Usage
-##Host
+<b>Host</b>
 1. Run built BotOperations.exe
 2. Type your IP address in the input field labeled "Connection address".
 	For LAN hosting, use "Local Address" (The first found IPv4 address is shown on the menu)
