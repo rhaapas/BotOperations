@@ -2512,7 +2512,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 1}
   m_AnchorMax: {x: 0.5, y: 1}
-  m_AnchoredPosition: {x: 0, y: 0.000005924501}
+  m_AnchoredPosition: {x: 0, y: 0.0004279094}
   m_SizeDelta: {x: 252, y: 800}
   m_Pivot: {x: 0.5, y: 1}
 --- !u!114 &61206528
@@ -64440,7 +64440,7 @@ MonoBehaviour:
   MessageBufferSize: 5120
   MaxConnections: 100
   MaxSentMessageQueueSize: 128
-  ConnectAddress: 192.168.1.124
+  ConnectAddress: 127.0.01
   ConnectPort: 7777
   ServerListenPort: 7777
   MessageSendMode: 0

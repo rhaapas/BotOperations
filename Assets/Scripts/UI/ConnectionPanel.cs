@@ -9,6 +9,7 @@ using TMPro;
 using Unity.Netcode;
 using Unity.Netcode.Transports.UNET;
 using UnityEngine;
+using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
 public class ConnectionPanel : MonoBehaviour
@@ -21,14 +22,31 @@ public class ConnectionPanel : MonoBehaviour
 	[SerializeField] private TMP_InputField portInputField;
 	[SerializeField] private UNetTransport uNetTransport;
 
+	private EventSystem eventSystem;
+
 	private void Awake()
 	{
+		eventSystem = EventSystem.current;
+
 		startHostButton.onClick.AddListener(StartHosting);
 		startClientButton.onClick.AddListener(StartClient);
 
 		GetLocalIPAddress();
 		GetPublicIpAddressAsync();
 
+	}
+
+	private void Update()
+	{
+		//Tab navigation for input fields
+		if (Input.GetKeyDown(KeyCode.Tab))
+		{
+			if (eventSystem.currentSelectedGameObject == ipInputField.gameObject)
+				eventSystem.SetSelectedGameObject(portInputField.gameObject);
+			else if (eventSystem.currentSelectedGameObject == portInputField.gameObject)
+				eventSystem.SetSelectedGameObject(ipInputField.gameObject);
+			else eventSystem.SetSelectedGameObject(ipInputField.gameObject);
+		}
 	}
 	public void GetLocalIPAddress()
 	{
@@ -48,12 +66,13 @@ public class ConnectionPanel : MonoBehaviour
 		ipText6.text = "Public IP: " + await httpClient.GetStringAsync("https://api.ipify.org");
 	}
 
-	
+
 	private void StartHosting()
 	{
-
-		uNetTransport.ConnectAddress = ipInputField.text;
-		uNetTransport.ConnectPort = int.Parse(portInputField.text);
+		if (ipInputField.text != "")
+			uNetTransport.ConnectAddress = ipInputField.text;
+		if(portInputField.text != "")
+			uNetTransport.ConnectPort = int.Parse(portInputField.text);
 
 		if (NetworkManager.Singleton.StartHost())
 		{
@@ -64,8 +83,10 @@ public class ConnectionPanel : MonoBehaviour
 	}
 	private void StartClient()
 	{
-		NetworkManager.Singleton.GetComponent<UNetTransport>().ConnectAddress = ipInputField.text;
-		NetworkManager.Singleton.GetComponent<UNetTransport>().ConnectPort = int.Parse(portInputField.text);
+		if (ipInputField.text != "")
+			uNetTransport.ConnectAddress = ipInputField.text;
+		if(portInputField.text != "")
+			uNetTransport.ConnectPort = int.Parse(portInputField.text);
 
 
 		if (NetworkManager.Singleton.StartClient())

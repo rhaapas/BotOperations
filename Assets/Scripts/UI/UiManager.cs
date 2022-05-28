@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.EventSystems;
 
 public class UiManager : MonoBehaviour
 {
@@ -17,6 +18,8 @@ public class UiManager : MonoBehaviour
 	public static UiManager Instance { get { return instance; } }
 	private static UiManager instance;
 
+	private EventSystem eventSystem;
+
 	private void Awake()
 	{
 		if (instance != null && instance != this)
@@ -26,6 +29,8 @@ public class UiManager : MonoBehaviour
 
 	void Start()
 	{
+		eventSystem = EventSystem.current;
+
 		mainPanelObjects = new List<GameObject>() { connectionPanelObject, connectingPanelObject, modePanelObject };
 
 		if (escMenuPanelObject.activeSelf)
@@ -82,4 +87,10 @@ public class UiManager : MonoBehaviour
 		foreach (GameObject panel in mainPanelObjects)
 			panel.SetActive(false);
 	}
+
+	public void EventSystemDeselectCurrent()
+	{
+		eventSystem.SetSelectedGameObject(null);
+	}
+
 }

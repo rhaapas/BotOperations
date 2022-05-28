@@ -56,6 +56,8 @@ public class ActionPanel : MonoBehaviour
 		if (player == null)
 			return;
 
+		UiManager.Instance.EventSystemDeselectCurrent();
+
 		switch (ApplicationManager.Instance.PlayerMode)
 		{
 			case PlayerModeOption.None:
@@ -85,6 +87,7 @@ public class ActionPanel : MonoBehaviour
 				break;
 
 		}
+
 	}
 
 	private void UseBotButtonClicked()
