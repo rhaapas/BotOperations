@@ -30,21 +30,12 @@ public class ApplicationManager : NetworkBehaviour
 	}
 	private PlayerModeOption playerMode = PlayerModeOption.None;
 
-	//public List<Bot> BotList
-	//{
-	//	get { return botList; }
-	//	set
-	//	{
-	//		botList = value;
-	//		BotListChangedEvent.Invoke();
-	//	}
-	//}
-	//[SerializeField] private List<Bot> botList = new List<Bot>();
 	public ObservableCollection<Bot> BotList { get { return botList; } }
 	[SerializeField] private ObservableCollection<Bot> botList = new ObservableCollection<Bot>();
 	public static ApplicationManager Instance { get { return instance; } }
 	private static ApplicationManager instance;
 
+	#region Unity methods
 	private void Awake()
 	{
 		if (instance != null && instance != this)
@@ -59,11 +50,7 @@ public class ApplicationManager : NetworkBehaviour
 		if (botSpawnPoint == null)
 			botSpawnPoint = GameObject.FindGameObjectWithTag("NewBotSpawnPoint").transform;
 	}
-
-
-
-
-
+	#endregion
 
 	public void SpawnBot(ulong ownerPlayerId, string name)
 	{
@@ -75,18 +62,14 @@ public class ApplicationManager : NetworkBehaviour
 
 			botNo.SpawnWithOwnership(ownerPlayerId);
 
-			//botNo.Spawn();
-			//botNo.ChangeOwnership(ownerPlayerId);
-
 			Bot bot = botObject.GetComponent<Bot>();
-			bot.SetBotName(name); //this called only on server..?
+			bot.SetBotName(name); //Bot handles its own RPC's, so need to only call by server.
 
 			botList.Add(bot);
 			AddBotToListClientRpc(botNo.NetworkObjectId);
 
 			SetSelectedBotOnPlayerClientRpc(ownerPlayerId, botNo.NetworkObjectId);
-			//Player player = GetPlayerWithId(ownerPlayerId); //RPC
-			//player.SelectedBot = bot;
+
 			Debug.Log($"Appmanager Spawnbot: (IsServer) . playerId = {ownerPlayerId}, name = {name}");
 
 		}
@@ -95,123 +78,99 @@ public class ApplicationManager : NetworkBehaviour
 			RequestSpawnBotServerRpc(ownerPlayerId, name);
 		}
 	}
+	//public void SpawnBot()
+	//{
+	//	if (IsServer)
+	//	{
+	//		GameObject bot = Instantiate(botPrefab, botSpawnPoint.position, Quaternion.identity);
+	//		bot.GetComponent<NetworkObject>().Spawn();
+	//	}
+	//	if (IsClient && !IsServer)
+	//	{
+	//		RequestSpawnBotServerRpc();
+	//	}
+	//}
+
+	//public void RequestBotUse(ulong playerId, Bot bot, Bot previousBot = null)
+	//{
+
+	//	ulong botNetworkId = bot.NetworkObjectId;
 
 
 
-	public void SpawnBot()
-	{
-		if (IsServer)
-		{
-			GameObject bot = Instantiate(botPrefab, botSpawnPoint.position, Quaternion.identity);
-			bot.GetComponent<NetworkObject>().Spawn();
-		}
-		if (IsClient && !IsServer)
-		{
-			RequestSpawnBotServerRpc();
-		}
-	}
+	//	if (IsServer)
+	//	{
+	//		StartCoroutine(UseBotRoutine(playerId, botNetworkId, previousBot));
+	//		UseBotClientRpc(playerId, botNetworkId);
+	//	}
+	//	if (IsClient && !IsServer)
+	//	{
+	//		if (previousBot != null)
+	//		{
+	//			ulong previousBotId = previousBot.NetworkObjectId;
+	//			UseBotServerRpc(playerId, botNetworkId, previousBotId);
+	//		}
+	//		else
+	//		{
+	//			UseBotServerRpc(playerId, botNetworkId);
+	//		}
 
-	public void RequestBotUse(ulong playerId, Bot bot, Bot previousBot = null)
-	{
+	//	}
+	//}
 
-		ulong botNetworkId = bot.NetworkObjectId;
-		
-		
-
-		if (IsServer)
-		{
-			StartCoroutine(UseBotRoutine(playerId, botNetworkId, previousBot));
-			UseBotClientRpc(playerId, botNetworkId);
-		}
-		if (IsClient && !IsServer)
-		{
-			if (previousBot != null)
-			{
-				ulong previousBotId = previousBot.NetworkObjectId;
-				UseBotServerRpc(playerId, botNetworkId, previousBotId);
-			}
-			else
-			{
-				UseBotServerRpc(playerId, botNetworkId);
-			}
-			
-		}
-	}
-
-	private IEnumerator UseBotRoutine(ulong playerId, ulong botNetworkId, Bot previousBot = null)
-	{
-		NetworkObject bot = GetNetworkObject(botNetworkId);
-		Player player = GetPlayerWithId(playerId);
-
-		//var childNetworkObjects = player.GetComponentsInChildren<NetworkObject>();
-		//if () > -1)
-
-		if (IsServer && previousBot != null)
-			previousBot.transform.SetParent(null, true);
-				//ReparentOldBot(player.transform);
+	//private IEnumerator UseBotRoutine(ulong playerId, ulong botNetworkId, Bot previousBot = null)
+	//{
+	//	NetworkObject bot = GetNetworkObject(botNetworkId);
+	//	Player player = GetPlayerWithId(playerId);
 
 
-		//while (Array.BinarySearch(childNetworkObjects, oldBotId) > -1)
-		//{
-		//	Debug.Log($"UseBotRoutine: Waiting for childobject count to go below 1. Count = {player.GetComponentsInChildren<NetworkObject>().Length}");
-		//	yield return null;
-		//}
+	//	if (IsServer && previousBot != null)
+	//		previousBot.transform.SetParent(null, true);
 
-		//while (player.GetComponentsInChildren<NetworkObject>().Length > 1 &&)
-		//{
 
-		//	Debug.Log($"UseBotRoutine: Waiting for childobject count to go below 1. Count = {player.GetComponentsInChildren<NetworkObject>().Length}");
-		//	yield return null;
-		//}
+	//	if (player.transform.position != bot.transform.position)
+	//		player.transform.position = bot.transform.position;
 
-		if (player.transform.position != bot.transform.position)
-			player.transform.position = bot.transform.position;
 
-		//while (player.transform.position != bot.transform.position)
-		//{
-		//	Debug.Log($"UseBotRoutine: Waiting for player transform to go to bot transform. player: {player.transform.position} {bot.transform.position}");
-		//	//player.transform.position = bot.transform.position;
-		//	yield return null;
-		//}
 
-		if (bot.OwnerClientId != playerId)
-			if (IsServer)
-				bot.ChangeOwnership(playerId);
+	//	if (bot.OwnerClientId != playerId)
+	//		if (IsServer)
+	//			bot.ChangeOwnership(playerId);
 
-		while (bot.OwnerClientId != playerId)
-		{
-			Debug.Log($"UseBotRoutine: Waiting for player to recieve ownership of bot. bot owner id: {bot.OwnerClientId}, {playerId} ");
+	//	while (bot.OwnerClientId != playerId)
+	//	{
+	//		Debug.Log($"UseBotRoutine: Waiting for player to recieve ownership of bot. bot owner id: {bot.OwnerClientId}, {playerId} ");
 
-			yield return null;
-		}
+	//		yield return null;
+	//	}
 
-		if (bot.transform.parent != player.transform)
-			if (IsServer)
-				bot.transform.SetParent(player.transform);
+	//	if (bot.transform.parent != player.transform)
+	//		if (IsServer)
+	//			bot.transform.SetParent(player.transform);
 
-		while (bot.transform.parent != player.transform)
-		{
-			yield return null;
-			Debug.Log($"UseBotRoutine: Waiting for bot reparenting");
+	//	while (bot.transform.parent != player.transform)
+	//	{
+	//		yield return null;
+	//		Debug.Log($"UseBotRoutine: Waiting for bot reparenting");
 
-		}
+	//	}
 
-		if (bot.transform.localPosition != Vector3.zero)
-			bot.transform.localPosition = Vector3.zero;
+	//	if (bot.transform.localPosition != Vector3.zero)
+	//		bot.transform.localPosition = Vector3.zero;
 
-		while (bot.transform.localPosition != Vector3.zero)
-		{
-			yield return null;
-			bot.transform.localPosition = Vector3.zero;
-			Debug.Log($"UseBotRoutine: Waiting for bot localposition to get zero {bot.transform.localPosition}");
+	//	while (bot.transform.localPosition != Vector3.zero)
+	//	{
+	//		yield return null;
+	//		bot.transform.localPosition = Vector3.zero;
+	//		Debug.Log($"UseBotRoutine: Waiting for bot localposition to get zero {bot.transform.localPosition}");
 
-		}
+	//	}
 
-		Debug.Log("PAPAPAPAPAPPA " + bot.transform.localPosition);
+	//	Debug.Log("PAPAPAPAPAPPA " + bot.transform.localPosition);
 
-		yield return null;//
-	}
-	
+	//	yield return null;//
+	//}
+
 	public void RequestBotOwnership(ulong playerId, Bot bot)
 	{
 		var botNetworkObjectId = bot.GetComponent<NetworkObject>().NetworkObjectId;
@@ -224,91 +183,91 @@ public class ApplicationManager : NetworkBehaviour
 			RequestBotOwnershipServerRpc(playerId, botNetworkObjectId);
 		}
 	}
-	public void RequestBotReparenting(ulong playerId, ulong botNetworkObjectId)
-	{
-		var player = GetPlayerWithId(playerId);
-		//var botNetworkObjectId = bot.GetComponent<NetworkObject>().NetworkObjectId;
-		if (IsServer)
-		{
-			//ReparentOldBot(player.transform);
-			Debug.Log($"Setting previous bot parent (IsServer):");
-			Transform botTransform = GetNetworkObject(botNetworkObjectId).transform;
-			botTransform.SetParent(player.transform, true);
-			//bot.transform.SetParent(player.transform, true);
-			//bot.transform.position = player.transform.position;
-			//if (botTransform.localPosition != Vector3.zero)
-			//{
-			//	botTransform.localPosition = Vector3.zero;
-			//}
-			//ResetBotLocalPositionClientRpc(botNetworkObjectId);
+	//public void RequestBotReparenting(ulong playerId, ulong botNetworkObjectId)
+	//{
+	//	var player = GetPlayerWithId(playerId);
+	//	//var botNetworkObjectId = bot.GetComponent<NetworkObject>().NetworkObjectId;
+	//	if (IsServer)
+	//	{
+	//		//ReparentOldBot(player.transform);
+	//		Debug.Log($"Setting previous bot parent (IsServer):");
+	//		Transform botTransform = GetNetworkObject(botNetworkObjectId).transform;
+	//		botTransform.SetParent(player.transform, true);
+	//		//bot.transform.SetParent(player.transform, true);
+	//		//bot.transform.position = player.transform.position;
+	//		//if (botTransform.localPosition != Vector3.zero)
+	//		//{
+	//		//	botTransform.localPosition = Vector3.zero;
+	//		//}
+	//		//ResetBotLocalPositionClientRpc(botNetworkObjectId);
 
-		}
-		else if (IsClient && !IsServer)
-		{
-			RequestBotReparentingServerRpc(playerId, botNetworkObjectId);
-		}
-	}
+	//	}
+	//	else if (IsClient && !IsServer)
+	//	{
+	//		RequestBotReparentingServerRpc(playerId, botNetworkObjectId);
+	//	}
+	//}
 
-	public void RequestResetBotLocalPosition(ulong botNetworkObjectId)
-	{
-		if (IsServer)
-		{
-			Transform botTransform = GetNetworkObject(botNetworkObjectId).transform;
+	//public void RequestResetBotLocalPosition(ulong botNetworkObjectId)
+	//{
+	//	if (IsServer)
+	//	{
+	//		Transform botTransform = GetNetworkObject(botNetworkObjectId).transform;
 
-			if (botTransform.localPosition != Vector3.zero)
-			{
-				botTransform.localPosition = Vector3.zero;
-			}
-			ResetBotLocalPositionClientRpc(botNetworkObjectId);
-		}
-		if (IsClient && !IsServer)
-		{
-			ResetBotLocalPositionServerRpc(botNetworkObjectId);
-		}
-	}
+	//		if (botTransform.localPosition != Vector3.zero)
+	//		{
+	//			botTransform.localPosition = Vector3.zero;
+	//		}
+	//		ResetBotLocalPositionClientRpc(botNetworkObjectId);
+	//	}
+	//	if (IsClient && !IsServer)
+	//	{
+	//		ResetBotLocalPositionServerRpc(botNetworkObjectId);
+	//	}
+	//}
 
-	public void RequestOldBotRemoval(ulong playerId)
-	{
-		if (IsServer)
-		{
-			Player player = GetPlayerWithId(playerId);
-			ReparentOldBot(player.transform);
-			Debug.Log("old bot removed server.");
-		}
-		else if (IsClient && !IsServer)
-		{
-			RequestOldBotRemovalServerRpc(playerId);
-		}
-	}
+	//public void RequestOldBotRemoval(ulong playerId)
+	//{
+	//	if (IsServer)
+	//	{
+	//		Player player = GetPlayerWithId(playerId);
+	//		ReparentOldBot(player.transform);
+	//		Debug.Log("old bot removed server.");
+	//	}
+	//	else if (IsClient && !IsServer)
+	//	{
+	//		RequestOldBotRemovalServerRpc(playerId);
+	//	}
+	//}
 
-	private void ReparentOldBot(Transform playerTransform)
-	{
-		var childNos = playerTransform.GetComponentsInChildren<NetworkObject>();
-		foreach (var childNo in childNos)
-		{
+	//private void ReparentOldBot(Transform playerTransform)
+	//{
+	//	var childNos = playerTransform.GetComponentsInChildren<NetworkObject>();
+	//	foreach (var childNo in childNos)
+	//	{
 
-			if (childNo.transform != playerTransform)
-			{
-				childNo.transform.SetParent(null, true);
-				childNo.RemoveOwnership();
-			}
-		}
-	}
+	//		if (childNo.transform != playerTransform)
+	//		{
+	//			childNo.transform.SetParent(null, true);
+	//			childNo.RemoveOwnership();
+	//		}
+	//	}
+	//}
 
-	public void MovePlayerToPosition(ulong playerId, Vector2 position)
-	{
-		if (IsServer)
-		{
-			Player playerObject = GetPlayerWithId(playerId);
-			playerObject.transform.position = position;
-			Debug.Log("player position changed server.");
-			MovePlayerToPositionClientRpc(playerId, position);
-		}
-		else if (IsClient && !IsServer)
-		{
-			MovePlayerToPositionServerRpc(playerId, position);
-		}
-	}
+	//public void MovePlayerToPosition(ulong playerId, Vector2 position)
+	//{
+	//	if (IsServer)
+	//	{
+	//		Player playerObject = GetPlayerWithId(playerId);
+	//		playerObject.transform.position = position;
+	//		Debug.Log("player position changed server.");
+	//		MovePlayerToPositionClientRpc(playerId, position);
+	//	}
+	//	else if (IsClient && !IsServer)
+	//	{
+	//		MovePlayerToPositionServerRpc(playerId, position);
+	//	}
+	//}
 
 	public Player GetLocalPlayer()
 	{
@@ -338,7 +297,7 @@ public class ApplicationManager : NetworkBehaviour
 	}
 	#region Server RPC's
 	[ServerRpc(RequireOwnership = false)]
-	public void RequestBotReparentingServerRpc(ulong playerId, ulong botNetworkId)
+	public void RequestBotReparentingServerRpc(ulong playerId, ulong botNetworkId) // USED
 	{
 
 		Player player = GetPlayerWithId(playerId);
@@ -347,44 +306,44 @@ public class ApplicationManager : NetworkBehaviour
 		//player.SetCurrentlyUsingBot(bot);
 	}
 	[ServerRpc(RequireOwnership = false)]
-	public void RequestRemoveBotServerRpc(ulong botNetworkId)
+	public void RequestRemoveBotServerRpc(ulong botNetworkId) //USED
 	{
 		var bot = GetNetworkObject(botNetworkId);
 		bot.transform.parent = null;
 	}
 
-	[ServerRpc(RequireOwnership = false)]
-	private void UseBotServerRpc(ulong playerId, ulong botNetworkId)
-	{
-		Bot bot = GetNetworkObject(botNetworkId).GetComponent<Bot>();
-		RequestBotUse(playerId, bot);
-	}
-	[ServerRpc(RequireOwnership = false)]
-	private void UseBotServerRpc(ulong playerId, ulong botNetworkId, ulong oldBotId)
-	{
-		Bot bot = GetNetworkObject(botNetworkId).GetComponent<Bot>();
-		Bot oldBot = GetNetworkObject(oldBotId).GetComponent<Bot>();
-		RequestBotUse(playerId, bot, oldBot);
-	}
-	[ServerRpc(RequireOwnership = false)]
-	private void ResetBotLocalPositionServerRpc(ulong botNetworkObjectId)
-	{
-		RequestResetBotLocalPosition(botNetworkObjectId);
-		//Transform botTransform = GetNetworkObject(botNetworkObjectId).transform;
+	//[ServerRpc(RequireOwnership = false)]
+	//private void UseBotServerRpc(ulong playerId, ulong botNetworkId)
+	//{
+	//	Bot bot = GetNetworkObject(botNetworkId).GetComponent<Bot>();
+	//	RequestBotUse(playerId, bot);
+	//}
+	//[ServerRpc(RequireOwnership = false)]
+	//private void UseBotServerRpc(ulong playerId, ulong botNetworkId, ulong oldBotId)
+	//{
+	//	Bot bot = GetNetworkObject(botNetworkId).GetComponent<Bot>();
+	//	Bot oldBot = GetNetworkObject(oldBotId).GetComponent<Bot>();
+	//	RequestBotUse(playerId, bot, oldBot);
+	//}
+	//[ServerRpc(RequireOwnership = false)]
+	//private void ResetBotLocalPositionServerRpc(ulong botNetworkObjectId)
+	//{
+	//	RequestResetBotLocalPosition(botNetworkObjectId);
+	//	//Transform botTransform = GetNetworkObject(botNetworkObjectId).transform;
 
-		//if (botTransform.localPosition != Vector3.zero)
-		//{
-		//	botTransform.localPosition = Vector3.zero;
-		//}
+	//	//if (botTransform.localPosition != Vector3.zero)
+	//	//{
+	//	//	botTransform.localPosition = Vector3.zero;
+	//	//}
 
-	}
-	[ServerRpc(RequireOwnership = false)]
-	private void RequestOldBotRemovalServerRpc(ulong playerId)
-	{
-		Transform playerTransform = GetPlayerWithId(playerId).transform;
-		ReparentOldBot(playerTransform);
-		Debug.Log("old bot removed server rpc");
-	}
+	//}
+	//[ServerRpc(RequireOwnership = false)]
+	//private void RequestOldBotRemovalServerRpc(ulong playerId)
+	//{
+	//	Transform playerTransform = GetPlayerWithId(playerId).transform;
+	//	ReparentOldBot(playerTransform);
+	//	Debug.Log("old bot removed server rpc");
+	//}
 	//[ServerRpc(RequireOwnership = false)]
 	//private void RequestBotReparentingServerRpc(ulong playerId, ulong botNetworkObjectId)
 	//{
@@ -400,8 +359,8 @@ public class ApplicationManager : NetworkBehaviour
 	//	////botNo.transform.position = player.transform.position;
 	//	RequestBotReparenting(playerId, botNetworkObjectId);
 	//}
-	[ServerRpc(RequireOwnership = false)]
-	private void RequestSpawnBotServerRpc() { SpawnBot(); }
+	//[ServerRpc(RequireOwnership = false)]
+	//private void RequestSpawnBotServerRpc() { SpawnBot(); }
 	[ServerRpc(RequireOwnership = false)]
 	private void RequestSpawnBotServerRpc(ulong ownerPlayerId, string name) { SpawnBot(ownerPlayerId, name); }
 	[ServerRpc(RequireOwnership = false)]
@@ -409,40 +368,40 @@ public class ApplicationManager : NetworkBehaviour
 	{
 		GetNetworkObject(botNetworkObjectId).ChangeOwnership(playerId);
 	}
-	[ServerRpc(RequireOwnership = false)]
-	private void MovePlayerToPositionServerRpc(ulong playerId, Vector2 position) { MovePlayerToPosition(playerId, position); }
+	//[ServerRpc(RequireOwnership = false)]
+	//private void MovePlayerToPositionServerRpc(ulong playerId, Vector2 position) { MovePlayerToPosition(playerId, position); }
 	#endregion
 
 
 	#region Client RPC's
-	[ClientRpc]
-	private void UseBotClientRpc(ulong playerId, ulong botNetworkId)
-	{
-		StartCoroutine(UseBotRoutine(playerId, botNetworkId));
-	}
-	[ClientRpc]
-	private void ResetBotLocalPositionClientRpc(ulong botNetworkObjectId)
-	{
-		Transform botTransform = GetNetworkObject(botNetworkObjectId).transform;
+	//[ClientRpc]
+	//private void UseBotClientRpc(ulong playerId, ulong botNetworkId)
+	//{
+	//	StartCoroutine(UseBotRoutine(playerId, botNetworkId));
+	//}
+	//[ClientRpc]
+	//private void ResetBotLocalPositionClientRpc(ulong botNetworkObjectId)
+	//{
+	//	Transform botTransform = GetNetworkObject(botNetworkObjectId).transform;
 
-		if (botTransform.localPosition != Vector3.zero)
-		{
-			botTransform.localPosition = Vector3.zero;
-		}
-		Debug.Log($"Resetting bot localposition clientrpc. x{botTransform.localPosition.x} y{botTransform.localPosition.y}");
-	}
-	[ClientRpc]
-	private void MovePlayerToPositionClientRpc(ulong ownerClientId, Vector2 position)
-	{
-		if (IsServer) return;
+	//	if (botTransform.localPosition != Vector3.zero)
+	//	{
+	//		botTransform.localPosition = Vector3.zero;
+	//	}
+	//	Debug.Log($"Resetting bot localposition clientrpc. x{botTransform.localPosition.x} y{botTransform.localPosition.y}");
+	//}
+	//[ClientRpc]
+	//private void MovePlayerToPositionClientRpc(ulong ownerClientId, Vector2 position)
+	//{
+	//	if (IsServer) return;
 
-		Transform playerTransform = GetPlayerWithId(ownerClientId).transform;
-		playerTransform.position = position;
-		Debug.Log($"player position changed client rpc. x{playerTransform.position.x} y{playerTransform.position.y}");
+	//	Transform playerTransform = GetPlayerWithId(ownerClientId).transform;
+	//	playerTransform.position = position;
+	//	Debug.Log($"player position changed client rpc. x{playerTransform.position.x} y{playerTransform.position.y}");
 
-	}
+	//}
 	[ClientRpc]
-	private void AddBotToListClientRpc(ulong NetworkObjectId)
+	private void AddBotToListClientRpc(ulong NetworkObjectId) //USED
 	{
 		if (IsServer) return;
 
@@ -451,7 +410,7 @@ public class ApplicationManager : NetworkBehaviour
 			botList.Add(bot);
 	}
 	[ClientRpc]
-	private void SetSelectedBotOnPlayerClientRpc(ulong ownerPlayerId, ulong networkObjectId)
+	private void SetSelectedBotOnPlayerClientRpc(ulong ownerPlayerId, ulong networkObjectId) //USED
 	{
 		if (IsServer) return;
 
@@ -461,7 +420,6 @@ public class ApplicationManager : NetworkBehaviour
 			NetworkObject botNo = GetNetworkObject(networkObjectId);
 			player.SelectedBot = botNo.GetComponent<Bot>();
 		}
-		//Debug.Log($"SetSelectedBotClient Rpc: Player ID: {ownerPlayerId}, GetLocalPlayer ID: {player.OwnerClientId}, networkObjectId: {networkObjectId}");
 	}
 	#endregion
 

@@ -6,42 +6,25 @@ using UnityEngine;
 
 public class PlayerNetworkedMovement : NetworkBehaviour
 {
+	[Header("Settings")]
 	[SerializeField] private float moveSpeed = 2f;
 
-	public bool IsMoving { get { return isMoving; } }	
-	[SerializeField] private bool isMoving = false;
-	
-
-	[SerializeField] private NetworkVariable<float> xPosition;
-	[SerializeField] private NetworkVariable<float> yPosition;
-
-	private float previousXPosition;
-	private float previousYPosition;
-
+	public bool IsMoving { get { return isMoving; } }
+	private bool isMoving = false;
 	public bool AllowMovement { get { return allowMovement; } set { allowMovement = value; } }
 	[SerializeField] private bool allowMovement;
 
-	private void Start()
-	{
-		
-	}
-	// Update is called once per frame
+	#region Unity Methods
 	void Update()
 	{
-		if (IsServer)
-		{
-			UpdateServer();
-		}
 		if (IsClient && IsOwner)
 		{
-			UpdateClient(); 
+			UpdateClient();
 		}
 	}
+	#endregion
 
-	private void UpdateServer()
-	{
-		//transform.position = new Vector2(xPosition.Value, yPosition.Value);
-	}
+	#region Input
 	private void UpdateClient()
 	{
 
@@ -65,28 +48,15 @@ public class PlayerNetworkedMovement : NetworkBehaviour
 			{
 				isMoving = false;
 			}
-
 		}
-
-		//if (previousXPosition != x || previousYPosition != y)
-		//{
-
-		//	previousXPosition = x;
-		//	previousYPosition = y;
-
-		//	//UpdateClientPositionServerRpc(x, y);
-		//}
 	}
-	//[ServerRpc]
-	//private void UpdateClientPositionServerRpc(float x, float y)
-	//{
-	//	xPosition.Value = x;
-	//	yPosition.Value = y;
-	//}
+	#endregion
+
+	#region Movement
 	private void MoveVertical(float value, out float newValue)
 	{
 		newValue = transform.position.y;
-		 
+
 		if (value < 0 && transform.position.y <= 0.5f)
 			return;
 		if (value > 0 && transform.position.y >= 28.5f)
@@ -97,7 +67,6 @@ public class PlayerNetworkedMovement : NetworkBehaviour
 		newValue = transform.position.y;
 
 	}
-
 	private void MoveHorizontal(float value, out float newValue)
 	{
 		newValue = transform.position.x;
@@ -110,6 +79,7 @@ public class PlayerNetworkedMovement : NetworkBehaviour
 		transform.Translate(value * Time.deltaTime * moveSpeed, 0, 0);
 
 		newValue = transform.position.x;
-		
+
 	}
+	#endregion
 }

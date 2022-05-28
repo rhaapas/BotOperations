@@ -2,6 +2,10 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
+
+/// <summary>
+/// A quick script to generate a grid from prefabs. Use in the inspector Component Settings (three dots) -> Spawn Grid
+/// </summary>
 public class CreateGridFromTiles : MonoBehaviour
 {
 	public GameObject tilePrefab;

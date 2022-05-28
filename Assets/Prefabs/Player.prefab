@@ -110,7 +110,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 5097020509115001459}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalPosition: {x: 2, y: 2, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children:
   - {fileID: 8074070413044059854}
@@ -172,11 +172,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   moveSpeed: 1
-  isMoving: 0
-  xPosition:
-    m_InternalValue: 0
-  yPosition:
-    m_InternalValue: 0
   allowMovement: 1
 --- !u!114 &3033384666678195354
 MonoBehaviour:
@@ -190,11 +185,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6aea80bd8226af0409b88667adf87350, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  playerId: 0
-  playerObject: {fileID: 0}
-  appManager: {fileID: 0}
-  playerCamera: {fileID: 0}
   operatorCameraPoint: {fileID: 0}
+  playerCamera: {fileID: 0}
+  playerId: 0
   currentlyUsingBot: {fileID: 0}
   selectedBot: {fileID: 0}
   selectedBotChanged:

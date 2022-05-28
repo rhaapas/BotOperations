@@ -7,9 +7,11 @@ using UnityEngine.UI;
 
 public class EscMenu : MonoBehaviour
 {
+	[Header("References")]
 	[SerializeField] private Button quitButton;
 	[SerializeField] private Button backButton;
 
+	#region Unity Methods
 	private void OnEnable()
 	{
 		quitButton.onClick.AddListener(QuitButtonClicked);
@@ -21,7 +23,9 @@ public class EscMenu : MonoBehaviour
 		quitButton.onClick.RemoveListener(QuitButtonClicked);
 		backButton.onClick.RemoveListener(QuitButtonClicked);
 	}
+	#endregion
 
+	#region Event Methods
 	private void BackButtonClicked()
 	{
 		gameObject.SetActive(false);
@@ -30,4 +34,5 @@ public class EscMenu : MonoBehaviour
 	{
 		Application.Quit();
 	}
+	#endregion
 }

@@ -16,7 +16,6 @@ public class IsActiveChangedEvent : UnityEvent<Bot, bool> { }
 
 public class Bot : NetworkBehaviour
 {
-	//[SerializeField] private Vector2 position;
 	[SerializeField] private ForceNetworkSerializeByMemcpy<FixedString64Bytes> botName;
 	[SerializeField] private ForceNetworkSerializeByMemcpy<FixedString64Bytes> message;
 
@@ -41,6 +40,7 @@ public class Bot : NetworkBehaviour
 	}
 	private bool isActive;
 
+	#region Unity Methods
 	private void Awake()
 	{
 		if (nameChanged == null)
@@ -55,11 +55,14 @@ public class Bot : NetworkBehaviour
 		nameChanged.AddListener(NameChanged);
 		messageChanged.AddListener(MessageChanged);
 	}
-	#region Test Event Methods
+	#endregion
+
+	#region Event Methods
 	private void MessageChanged(string arg0) { messageText.text = arg0; }
 
 	private void NameChanged(string arg0) { nameText.text = arg0; }
 	#endregion
+
 	public void SetLinkedButton(BotDataButton button) { linkedButton = button; }
 	public void RemoveLinkedButton() { linkedButton = null; }
 	public string GetName()
@@ -109,11 +112,13 @@ public class Bot : NetworkBehaviour
 
 	}
 	#endregion
+
 	#region Client RPC's
 	[ClientRpc]
 	private void SetBotMessageClientRpc(string newMessage)
 	{
-		if (IsServer) return;
+		if (IsServer) 
+			return;
 
 		message.Value = newMessage;
 		Debug.Log($"Client rpc, message = {message.Value}");
@@ -123,14 +128,12 @@ public class Bot : NetworkBehaviour
 	[ClientRpc]
 	private void SetBotNameClientRpc(string name)
 	{
-		if (IsServer) return;
+		if (IsServer) 
+			return;
 
 		botName.Value = name;
 		gameObject.name = name;
-		//Debug.Log($"Client rpc, botname = {botName.Value}");
 		nameChanged.Invoke(name);
-		//Debug.Log($"set bot name (Client RPC) called, name = {name}, botName.Value = {botName.Value.ToString()}");
-
 	}
 
 	#endregion

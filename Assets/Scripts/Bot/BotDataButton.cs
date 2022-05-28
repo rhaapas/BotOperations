@@ -6,6 +6,7 @@ using TMPro;
 
 public class BotDataButton : MonoBehaviour
 {
+	[Header("References")]
 	[SerializeField] private TMP_Text botNameText;
 
 	public Bot LinkedBot { get { return linkedBot; } }
@@ -13,17 +14,7 @@ public class BotDataButton : MonoBehaviour
 
 	private Player player;
 
-
-
-	public void Initialize(Bot bot)
-	{
-		player = ApplicationManager.Instance.GetLocalPlayer();
-		linkedBot = bot;
-		botNameText.text = bot.GetName();
-		GetComponent<Button>().onClick.AddListener(SelectBot);
-	}
-
-
+	#region Event Methods
 	public void SelectBot()
 	{
 		if (linkedBot == null)
@@ -33,5 +24,14 @@ public class BotDataButton : MonoBehaviour
 		}
 
 		player.SelectedBot = linkedBot;
+	}
+	#endregion
+
+	public void Initialize(Bot bot)
+	{
+		player = ApplicationManager.Instance.GetLocalPlayer();
+		linkedBot = bot;
+		botNameText.text = bot.GetName();
+		GetComponent<Button>().onClick.AddListener(SelectBot);
 	}
 }

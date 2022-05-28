@@ -2,6 +2,9 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
+/// <summary>
+/// Bot Data classes for JsonUtilities to convert to .json
+/// </summary>
 [System.Serializable]
 public class BotData
 {

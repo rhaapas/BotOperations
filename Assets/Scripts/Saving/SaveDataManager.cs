@@ -3,6 +3,10 @@ using System.Collections.Generic;
 using System.IO;
 using UnityEngine;
 
+/// <summary>
+/// Manager for saving bot data, Does not work at the moment. 
+/// TODO: Fix Saving and loading
+/// </summary>
 public class SaveDataManager : MonoBehaviour
 {
 	[SerializeField] private string botSaveDataFileName;

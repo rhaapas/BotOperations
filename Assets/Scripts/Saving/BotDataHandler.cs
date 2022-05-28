@@ -3,13 +3,14 @@ using System.Collections.Generic;
 using System.IO;
 using UnityEngine;
 
-
+/// <summary>
+/// Handler class that saves and loads Bot Data
+/// </summary>
 public static class BotDataHandler
 {
 	public static BotSaveData ReadBotDataFromJson(string dataPath)
 	{
 		string json = "";
-		//string jsonPath = Application.persistentDataPath + "/SavedBotData.json";
 		string jsonPath = dataPath;
 		BotSaveData savedBotData;
 

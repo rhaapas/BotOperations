@@ -9,16 +9,21 @@ public class SelectedBotChangedEvent : UnityEvent<Bot> { }
 
 public class Player : NetworkBehaviour
 {
-
-	[SerializeField] private ulong playerId;
-	[SerializeField] private NetworkObject playerObject;
-	[SerializeField] private ApplicationManager appManager;
-	[SerializeField] private Camera playerCamera;
+	[Header("References")]
 	[SerializeField] private Transform operatorCameraPoint;
+	[SerializeField] private Camera playerCamera;
+	[Space]
+	[Header("Debug")]
+	[SerializeField] private ulong playerId;
+	[SerializeField] private Bot currentlyUsingBot = null;
+	[SerializeField] private Bot selectedBot;
+	[Space]
+	public SelectedBotChangedEvent selectedBotChanged;
+
+	private NetworkObject playerObject;
+	private ApplicationManager appManager;
 
 	public Bot CurrentlyUsingBot { get { return currentlyUsingBot; } }
-	[SerializeField] private Bot currentlyUsingBot = null;
-
 	public Bot SelectedBot
 	{
 		get { return selectedBot; }
@@ -28,10 +33,9 @@ public class Player : NetworkBehaviour
 			selectedBotChanged.Invoke(value);
 		}
 	}
-	[SerializeField] private Bot selectedBot;
 
-	public SelectedBotChangedEvent selectedBotChanged;
 
+	#region Unity methods
 	private void Awake()
 	{
 		if (selectedBotChanged == null)
@@ -40,14 +44,19 @@ public class Player : NetworkBehaviour
 
 	void Start()
 	{
-		playerCamera = Camera.main;
-		operatorCameraPoint = GameObject.FindGameObjectWithTag("OperatorCameraPoint").transform;
+		if (playerCamera == null)
+			playerCamera = Camera.main;
+
+		if (operatorCameraPoint == null)
+			operatorCameraPoint = GameObject.FindGameObjectWithTag("OperatorCameraPoint").transform;
+
 		appManager = ApplicationManager.Instance;
 		playerObject = GetComponent<NetworkObject>();
 		playerId = playerObject.OwnerClientId;
 
 		appManager.PlayerModeChangedEvent.AddListener(OnPlayModeChanged);
 	}
+	#endregion
 
 	private void OnPlayModeChanged(PlayerModeOption mode)
 	{
@@ -69,15 +78,14 @@ public class Player : NetworkBehaviour
 		}
 	}
 
-	public void CreateBot(ulong playerId, string name)
-	{
-		//Debug.Log($"Player.Createbot called. playerId = {playerId}, name = {name}");
-		appManager.SpawnBot(playerId, name);
-	}
-	public void CreateBot() { appManager.SpawnBot(playerId, "Bot"); }
+	public void CreateBot(ulong playerId, string name) { appManager.SpawnBot(playerId, name); }
 
 	public void UseBot() { StartCoroutine(UseBotRoutine(playerId, selectedBot)); }
-	public IEnumerator UseBotRoutine(ulong playerId, Bot bot)
+
+	//IEnumerator for quick way for adding delays to compensate for lag and keep excecution order.
+	//TODO: rework server/event calls to make sure the rpc's excecute in correct manner with automatic position syncing.
+	// (ie. movement has been properly synced with all clients before reparenting happens.)
+	private IEnumerator UseBotRoutine(ulong playerId, Bot bot)
 	{
 		var playerMovement = GetComponent<PlayerNetworkedMovement>();
 
@@ -90,12 +98,7 @@ public class Player : NetworkBehaviour
 
 		transform.position = bot.transform.position;
 
-
 		yield return new WaitForSeconds(1f);
-
-		//appManager.RequestBotOwnershipServerRpc(playerId, bot.NetworkObjectId);
-
-		
 
 		appManager.RequestBotReparentingServerRpc(playerId, bot.NetworkObjectId);
 
@@ -105,41 +108,9 @@ public class Player : NetworkBehaviour
 
 		playerMovement.AllowMovement = true;
 
-
-
-		//Bot oldBot = GetComponentInChildren<Bot>();
-		//if (oldBot != null)
-		//{
-		//	NetworkObject oldBotNo = oldBot.GetComponent<NetworkObject>();
-		//	appManager.RequestOldBotRemoval(playerId);
-		//	while (oldBotNo.IsOwner) { yield return null; }
-		//}
-
-		//if (!bot.IsOwner)
-		//{
-		//	appManager.RequestBotOwnership(playerId, bot);
-		//	while (!bot.IsOwner) { yield return null; }
-		//}
-		//bot.IsActive = true;
-		//appManager.MovePlayerToPosition(playerId, bot.transform.position);
-		//while (transform.position != bot.transform.position) { yield return null; }
-		//appManager.RequestBotReparenting(playerId, bot.NetworkObjectId);
-		//while (!bot.transform.IsChildOf(transform)) { yield return null; }
-		//appManager.RequestResetBotLocalPosition(bot.NetworkObjectId);
-
-		//appManager.RequestBotUse(playerId,bot, currentlyUsingBot);
 		yield return null;
+	}
 
-		//StartCoroutine(StartBotTrackCoroutine(bot));
-	}
-	public IEnumerator StartBotTrackCoroutine(Bot bot)
-	{
-		while (true)
-		{
-			Debug.Log($"BOT TRACK POS: x{bot.transform.localPosition.x} y{bot.transform.localPosition.y}");
-			yield return null;
-		};
-	}
 	public void SetCurrentlyUsingBot(Bot bot)
 	{
 		currentlyUsingBot = bot;
@@ -155,7 +126,6 @@ public class Player : NetworkBehaviour
 		selectedBot.SetBotName(name);
 
 	}
-
 	public void SetSelectedBotMessage(string message)
 	{
 		if (!selectedBot.IsOwner)

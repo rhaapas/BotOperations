@@ -9,17 +9,19 @@ using UnityEngine.UI;
 
 public class ActionPanel : MonoBehaviour
 {
+	[Header("References")]
 	[SerializeField] private Button useBotButton;
 	[SerializeField] private Button actionButton;
 	[SerializeField] private TMP_InputField inputField;
 	[SerializeField] private TMP_Text actionText;
 	[SerializeField] private TMP_Text actionButtonText;
 	[SerializeField] private TMP_Text selectedBotText;
-	[SerializeField] private Player player = null;
 
+	private Player player = null;
 	private EventSystem eventSystem;
 	private PlayerNetworkedMovement playerMovement;
 
+	#region Unity Methods
 	void Start()
 	{
 		ApplicationManager.Instance.PlayerModeChangedEvent.AddListener(PlayerModeChanged);
@@ -29,8 +31,33 @@ public class ActionPanel : MonoBehaviour
 		eventSystem = EventSystem.current;
 
 	}
+	#endregion
 
-	
+	#region Event Methods
+	private void PlayerModeChanged(PlayerModeOption playerMode)
+	{
+		StartCoroutine(WaitForConnection());
+
+		switch (playerMode)
+		{
+			case PlayerModeOption.None:
+				break;
+			case PlayerModeOption.Operator:
+				useBotButton.gameObject.SetActive(false);
+				actionText.text = "Send a message:";
+				actionButtonText.text = "Send";
+				break;
+			case PlayerModeOption.Bot:
+				useBotButton.gameObject.SetActive(true);
+				actionText.text = "Create new bot";
+				actionButtonText.text = "Create";
+				break;
+			default:
+				break;
+		}
+	}
+
+	#endregion
 
 	public IEnumerator WaitForConnection()
 	{
@@ -50,7 +77,6 @@ public class ActionPanel : MonoBehaviour
 			player.selectedBotChanged.AddListener(BotSelectionChanged);
 		}
 	}
-
 	private void ActionButtonClicked()
 	{
 		if (player == null)
@@ -78,7 +104,7 @@ public class ActionPanel : MonoBehaviour
 
 			case PlayerModeOption.Bot:
 				if (inputField.text != "")
-				player.CreateBot(player.OwnerClientId, inputField.text);
+					player.CreateBot(player.OwnerClientId, inputField.text);
 				else
 					Debug.Log("input field is empty");
 				break;
@@ -89,7 +115,6 @@ public class ActionPanel : MonoBehaviour
 		}
 
 	}
-
 	private void UseBotButtonClicked()
 	{
 		if (player == null)
@@ -98,32 +123,5 @@ public class ActionPanel : MonoBehaviour
 		if (player.SelectedBot != null)
 			player.UseBot();
 	}
-
-	private void PlayerModeChanged(PlayerModeOption playerMode)
-	{
-		StartCoroutine(WaitForConnection());
-
-		switch (playerMode)
-		{
-			case PlayerModeOption.None:
-				break;
-			case PlayerModeOption.Operator:
-				useBotButton.gameObject.SetActive(false);
-				actionText.text = "Send a message:";
-				actionButtonText.text = "Send";
-				break;
-			case PlayerModeOption.Bot:
-				useBotButton.gameObject.SetActive(true);
-				actionText.text = "Create new bot";
-				actionButtonText.text = "Create";
-				break;
-			default:
-				break;
-		}
-	}
-
-	private void BotSelectionChanged(Bot bot)
-	{
-		selectedBotText.text = bot.GetName();
-	}
+	private void BotSelectionChanged(Bot bot) { selectedBotText.text = bot.GetName(); }
 }

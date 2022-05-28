@@ -7,10 +7,12 @@ public class ConnectingPanel : MonoBehaviour
 {
 	private NetworkManager networkManager;
 
+	#region Unity Methods
 	private void OnEnable()
 	{
 		StartWaitForConnection();
 	}
+	#endregion
 
 	public void StartWaitForConnection()
 	{
@@ -23,14 +25,13 @@ public class ConnectingPanel : MonoBehaviour
 		{
 			yield return null;
 			networkManager = NetworkManager.Singleton;
-			Debug.Log("waiting to get networkmanager..");
 		}
 
 		while (networkManager.IsConnectedClient == false && networkManager.IsHost == false)
 		{
 			yield return new WaitForSeconds(1f);
-			Debug.Log("waiting to get IsConnectedClient..");
 		}
+
 		UiManager.Instance.OpenNextPanel();
 	}
 }

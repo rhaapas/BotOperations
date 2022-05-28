@@ -14,6 +14,7 @@ using UnityEngine.UI;
 
 public class ConnectionPanel : MonoBehaviour
 {
+	[Header("References")]
 	[SerializeField] private Button startHostButton;
 	[SerializeField] private Button startClientButton;
 	[SerializeField] private TMP_Text ipText4;
@@ -24,6 +25,7 @@ public class ConnectionPanel : MonoBehaviour
 
 	private EventSystem eventSystem;
 
+	#region Unity Methods
 	private void Awake()
 	{
 		eventSystem = EventSystem.current;
@@ -48,25 +50,9 @@ public class ConnectionPanel : MonoBehaviour
 			else eventSystem.SetSelectedGameObject(ipInputField.gameObject);
 		}
 	}
-	public void GetLocalIPAddress()
-	{
-		var host = Dns.GetHostEntry(Dns.GetHostName());
-		foreach (var ip in host.AddressList)
-		{
-			if (ip.AddressFamily == AddressFamily.InterNetwork)
-			{
-				ipText4.text = "Local IP: " + ip.ToString();
-			}
-		}
-	}
+	#endregion
 
-	public async Task GetPublicIpAddressAsync()
-	{
-		var httpClient = new HttpClient();
-		ipText6.text = "Public IP: " + await httpClient.GetStringAsync("https://api.ipify.org");
-	}
-
-
+	#region Connect Methods
 	private void StartHosting()
 	{
 		if (ipInputField.text != "")
@@ -95,5 +81,22 @@ public class ConnectionPanel : MonoBehaviour
 			UiManager.Instance.OpenNextPanel();
 		}
 	}
+	#endregion
 
+	public void GetLocalIPAddress()
+	{
+		var host = Dns.GetHostEntry(Dns.GetHostName());
+		foreach (var ip in host.AddressList)
+		{
+			if (ip.AddressFamily == AddressFamily.InterNetwork)
+			{
+				ipText4.text = "Local IP: " + ip.ToString();
+			}
+		}
+	}
+	public async Task GetPublicIpAddressAsync()
+	{
+		var httpClient = new HttpClient();
+		ipText6.text = "Public IP: " + await httpClient.GetStringAsync("https://api.ipify.org");
+	}
 }

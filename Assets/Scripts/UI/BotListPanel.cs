@@ -9,22 +9,36 @@ using UnityEngine.Events;
 
 public class BotListPanel : MonoBehaviour
 {
+	[Header("References")]
 	[SerializeField] private GameObject botButtonPrefab;
 	[SerializeField] private TMP_Text botListEmptyText;
 	[SerializeField] private GameObject botListContentObject;
+
 	[SerializeField] private List<BotDataButton> botButtonList;
 
-
-	// Start is called before the first frame update
+	#region Unity Methods
 	void Start()
 	{
 		ApplicationManager.Instance.BotList.CollectionChanged += BotListChanged;
 	}
+	#endregion
 
+	#region Event Methods
 	private void BotListChanged(object sender, NotifyCollectionChangedEventArgs e)
 	{
 		UpdateBotButtonList();
 	}
+	private void BotActiveChanged(Bot bot, bool active)
+	{
+		if (active)
+		{
+			botButtonList.Remove(bot.LinkedButton);
+			bot.RemoveLinkedButton();
+			Destroy(bot.LinkedButton?.gameObject);
+		}
+
+	}
+	#endregion
 
 	public void UpdateBotButtonList()
 	{
@@ -49,18 +63,6 @@ public class BotListPanel : MonoBehaviour
 		else
 			botListEmptyText.gameObject.SetActive(false);
 	}
-
-	private void BotActiveChanged(Bot bot, bool active)
-	{
-		if (active)
-		{
-			botButtonList.Remove(bot.LinkedButton);
-			bot.RemoveLinkedButton();
-			Destroy(bot.LinkedButton?.gameObject);
-		}
-
-	}
-
 	private void DestroyAllButtons()
 	{
 		foreach (BotDataButton button in botButtonList)

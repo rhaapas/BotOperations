@@ -6,7 +6,7 @@ using UnityEngine.EventSystems;
 
 public class UiManager : MonoBehaviour
 {
-
+	[Header("References")]
 	[SerializeField] private GameObject connectionPanelObject;
 	[SerializeField] private GameObject modePanelObject;
 	[SerializeField] private GameObject connectingPanelObject;
@@ -14,19 +14,18 @@ public class UiManager : MonoBehaviour
 
 	private List<GameObject> mainPanelObjects;
 	private int currentPanelIndex = 0;
+	private EventSystem eventSystem;
 
 	public static UiManager Instance { get { return instance; } }
 	private static UiManager instance;
 
-	private EventSystem eventSystem;
-
+	#region Unity Methods
 	private void Awake()
 	{
 		if (instance != null && instance != this)
 			Destroy(this);
 		else instance = this;
 	}
-
 	void Start()
 	{
 		eventSystem = EventSystem.current;
@@ -36,21 +35,14 @@ public class UiManager : MonoBehaviour
 		if (escMenuPanelObject.activeSelf)
 			escMenuPanelObject.SetActive(false);
 	}
-
 	private void Update()
 	{
 		if (Input.GetKeyDown(KeyCode.Escape))
 			ToggleEscMenu();
 	}
+	#endregion
 
-	private void ToggleEscMenu()
-	{
-		if (escMenuPanelObject.activeSelf)
-			escMenuPanelObject.SetActive(false);
-		else
-			escMenuPanelObject.SetActive(true);
-	}
-
+	#region Main UI Navigation
 	public void OpenNextPanel()
 	{
 		if (currentPanelIndex == mainPanelObjects.Count - 1)
@@ -68,7 +60,6 @@ public class UiManager : MonoBehaviour
 		currentPanelIndex--;
 		EnableMainPanel(currentPanelIndex);
 	}
-
 	private void EnableMainPanel(GameObject panel)
 	{
 		if (mainPanelObjects.Contains(panel))
@@ -82,12 +73,20 @@ public class UiManager : MonoBehaviour
 		DisableMainPanels();
 		mainPanelObjects[index].SetActive(true);
 	}
+	#endregion
+
 	private void DisableMainPanels()
 	{
 		foreach (GameObject panel in mainPanelObjects)
 			panel.SetActive(false);
 	}
-
+	private void ToggleEscMenu()
+	{
+		if (escMenuPanelObject.activeSelf)
+			escMenuPanelObject.SetActive(false);
+		else
+			escMenuPanelObject.SetActive(true);
+	}
 	public void EventSystemDeselectCurrent()
 	{
 		eventSystem.SetSelectedGameObject(null);
